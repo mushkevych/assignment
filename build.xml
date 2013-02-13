@@ -1,0 +1,101 @@
+<project name="assignment-globalrelay" basedir="." default="pack">
+
+    <property environment="env"/>
+    <property name="project.title" value="assignment-globalrelay"/>
+    <property name="project.version" value="01"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="build.test" value="${basedir}/build/test"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="src.dir" value="${basedir}/src"/>
+    <property name="test.src.dir" value="${basedir}/test"/>
+
+    <path id="project.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <path id="unittest.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <fileset dir="${dist.dir}" includes="**/*.jar"/>
+    </path>
+
+    <!-- ====================== Prep Work =========================================== -->
+    <target name="init" description="creates build and dist directories">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <target name="clean" description="Cleans up any previous build products">
+        <delete dir="${dist.dir}" failonerror="false"/>
+        <delete dir="${build.dir}" failonerror="false"/>
+    </target>
+
+
+    <!-- ====================== Compilation Targets ================================= -->
+    <!-- build the source -->
+    <target name="compile" depends="init" description="Compile java classes">
+        <javac debug="yes" srcdir="${src.dir}" destdir="${build.dir}" deprecation="true" source="1.6" nowarn="true">
+            <classpath refid="project.class.path"/>
+            <compilerarg line="-Xmaxerrs 10000"/>
+        </javac>
+        <javac debug="yes" srcdir="${test.src.dir}" destdir="${build.dir}" deprecation="true" source="1.6"
+               nowarn="true">
+            <classpath refid="project.class.path"/>
+            <compilerarg line="-Xmaxerrs 10000"/>
+        </javac>
+        <copy todir="${build.dir}\lib">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+    </target>
+
+    <!-- package up classes into a jar file -->
+    <target name="jar" depends="clean, compile" description="Package compiled classes into a jar file for distribution">
+        <buildnumber/>
+
+        <!-- this section is required to build *Class-Path* field in Metafile -->
+        <pathconvert property="lib.reference" pathsep=" ">
+            <mapper>
+                <chainedmapper>
+                    <!-- remove absolute path -->
+                    <flattenmapper/>
+                    <!-- add lib/ prefix -->
+                    <globmapper from="*" to="lib/*"/>
+                </chainedmapper>
+            </mapper>
+            <path>
+                <!-- We are referencing Jar files, earlier copied into ${build.dir}\lib directory -->
+                <fileset dir="${build.dir}\lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </path>
+        </pathconvert>
+
+        <jar destfile="${dist.dir}/${ant.project.name}-${project.version}.jar">
+            <fileset dir="${build.dir}" includes="**/*"/>
+            <manifest>
+                <attribute name="Built-By" value="Bohdan Mushkevych"/>
+                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${project.version}-${build.number}"/>
+                <attribute name="Class-Path" value="${lib.reference}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Build jar file and copy all related files (settings, script) to /dist folder -->
+    <target name="pack" depends="jar" description="Build jar file and copy all related files to /dist">
+        <copy todir="${dist.dir}\lib">
+            <fileset dir="${lib.dir}" includes="*"/>
+        </copy>
+    </target>
+    <!-- ====================== Run Tests ============================== -->
+    <target name="runtest" description="Runs unit tests" depends="jar">
+        <junit printsummary="withOutAndErr" fork="yes">
+            <classpath refid="unittest.class.path" />
+            <formatter type="plain" usefile="false"/>
+            <batchtest>
+                <fileset dir="${test.src.dir}">
+                    <include name="**/*Test*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target></project>
