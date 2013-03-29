@@ -73,7 +73,19 @@ public class MonitorServer extends Thread {
     }
 
     public static void main(String argv[]) throws Exception {
+        // for illustration purposes only - init configuration with some abstract services
+        final String LOCALHOST = "127.0.0.1";
+        final String SERVICE_ALPHA = "alpha";
+        final String SERVICE_BETA = "beta";
+        final String SERVICE_GAMA = "gama";
+        final String SERVICE_DELTA = "delta";
+
         MonitorServer server = new MonitorServer();
+        server.configurator.addConfiguration(new ServiceConfiguration(SERVICE_ALPHA, LOCALHOST, 9991, true, 1, 3));
+        server.configurator.addConfiguration(new ServiceConfiguration(SERVICE_BETA, LOCALHOST, 9992, true, 1, 3));
+        server.configurator.addConfiguration(new ServiceConfiguration(SERVICE_GAMA, LOCALHOST, 9993, true, 1, 3));
+        server.configurator.addConfiguration(new ServiceConfiguration(SERVICE_DELTA, LOCALHOST, 9994, true, 1, 3));
+
         server.start();
     }
 }

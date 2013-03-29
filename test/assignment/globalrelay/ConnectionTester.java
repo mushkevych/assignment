@@ -11,6 +11,11 @@ import java.util.logging.Logger;
  * Description: unit tests Service Monitor
  */
 public class ConnectionTester extends TestCase {
+    public static final String SERVICE_ALPHA = "alpha";
+    public static final String SERVICE_BETA = "beta";
+    public static final String SERVICE_GAMA = "gama";
+    public static final String SERVICE_DELTA = "delta";
+
     public static final String LOGGER_TAG = "unit test";
     public static final Logger logger = Logger.getLogger(LOGGER_TAG);
     private MonitorServer server;
@@ -40,82 +45,86 @@ public class ConnectionTester extends TestCase {
     @Override
     protected void setUp() throws Exception {
         server = new MonitorServer();
-        for (String name : server.configurator.getServiceNames()) {
-            ServiceConfiguration configuration = server.configurator.getConfiguration(name);
-            configuration.addListener(echoListener);
-        }
     }
 
     @Override
     protected void tearDown() throws Exception {
         if (server != null) {
+            server.configurator.reset();
             server.stopServer();
+            server = null;
         }
     }
 
     public void testAllGoodConnections() throws Exception {
-        logger.info("testAllGoodConnections");
-        for (String name : server.configurator.getServiceNames()) {
-            ServiceConfiguration configuration = server.configurator.getConfiguration(name);
-            configuration.setHost("www.google.com");
-            configuration.setPort(80);
-        }
+        logger.info("testGoogleConnections");
+        ServiceConfiguration configuration = new ServiceConfiguration(SERVICE_ALPHA, "www.google.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
+        // register listener
+        for (String name : server.configurator.getServiceNames()) {
+            ServiceConfiguration sc = server.configurator.getConfiguration(name);
+            sc.addListener(echoListener);
+        }
         server.start();
         Thread.sleep(10*1000);
     }
 
     public void test_3Good_1Bad_Connections() throws Exception {
         logger.info("test_3Good_1Bad_Connections");
-        ServiceConfiguration configuration = server.configurator.getConfiguration(Configurator.SERVICE_ALPHA);
-        configuration.setHost("www.google.com");
-        configuration.setPort(80);
+        ServiceConfiguration configuration = new ServiceConfiguration(SERVICE_ALPHA, "www.google.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_BETA);
-        configuration.setHost("www.yahoo.com");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_BETA, "www.yahoo.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_GAMA);
-        configuration.setHost("www.bing.com");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_GAMA, "www.bing.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_DELTA);
-        configuration.setHost("www.wrongaddress.address");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_DELTA, "www.wrongaddress.address", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
+        // register listener
+        for (String name : server.configurator.getServiceNames()) {
+            ServiceConfiguration sc = server.configurator.getConfiguration(name);
+            sc.addListener(echoListener);
+        }
         server.start();
         Thread.sleep(20*1000);
     }
 
     public void testConnectionsSwitch() throws Exception {
         logger.info("testConnectionsSwitch");
-        ServiceConfiguration configuration = server.configurator.getConfiguration(Configurator.SERVICE_ALPHA);
-        configuration.setHost("www.google.com");
-        configuration.setPort(80);
+        ServiceConfiguration configuration = new ServiceConfiguration(SERVICE_ALPHA, "www.google.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_BETA);
-        configuration.setHost("www.yahoo.com");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_BETA, "www.yahoo.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_GAMA);
-        configuration.setHost("www.bing.com");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_GAMA, "www.bing.com", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_DELTA);
-        configuration.setHost("www.meta.ua");
-        configuration.setPort(80);
+        configuration = new ServiceConfiguration(SERVICE_DELTA, "www.meta.ua", 80, true, 1, 3);
+        server.configurator.addConfiguration(configuration);
 
+        // register listener
+        for (String name : server.configurator.getServiceNames()) {
+            ServiceConfiguration sc = server.configurator.getConfiguration(name);
+            sc.addListener(echoListener);
+        }
         server.start();
         Thread.sleep(20*1000);
 
-        configuration = server.configurator.getConfiguration(Configurator.SERVICE_BETA);
+        configuration = server.configurator.getConfiguration(SERVICE_BETA);
         configuration.setHost("www.wrongaddress.address");
         configuration.setPort(80);
+        server.configurator.addConfiguration(configuration);
+
         Thread.sleep(20*1000);
     }
 
     public void testGraceThreshold() throws Exception {
-        ServiceConfiguration configuration = server.configurator.getConfiguration(Configurator.SERVICE_ALPHA);
+        ServiceConfiguration configuration = new ServiceConfiguration(SERVICE_ALPHA, "www.google.com", 80, true, 1, 3);
         configuration.setQueryInterval(10);
         configuration.setGraceInterval(5);
         assertEquals(configuration.getQueryInterval(), 5);

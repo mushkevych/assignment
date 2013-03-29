@@ -1,3 +1,23 @@
+Assignments:
+=============================
+
+This repository contains code for GlobalRelay technical assignment, authored in January of 2013
+Description of the assignment is provided below.
+
+What was done:
+- This assignment took me 1 full day to write 
+- It covers 80% of the required functionality 
+
+To Do:
+- ServiceConfiguration should be identified by address, not by arbitrary name as it is now
+- Unit tests should be based on mocks
+- Review the assignment and fix inconsistancies, if any 
+
+Interview environment:
+- Interviewers strongly believe that this is your only option on the market, so spare your time on explanation that you were hesitant to spend more than 1 day on a "throw-away code"
+- Be mentally prepared for provocative questions, such as "if this method is never used (for instance Configurator#removeConfiguration) - why is it in" ?
+
+=============================
 Technical Assignment
 
 Design and implement in (java or c#) a service monitoring class. This monitor
