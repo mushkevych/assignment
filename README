@@ -9,9 +9,9 @@ What was done:
 - It covers 80% of the required functionality 
 
 To Do:
-- ServiceConfiguration should be identified by address, not by arbitrary name as it is now
+- ServiceConfiguration should be identified by Service URL, not by user-defined name as it is now
+- Listeners should subscribe by combination of <Service URL : query interval>
 - Unit tests should be based on mocks
-- Review the assignment and fix inconsistancies, if any 
 
 Interview environment:
 - Interviewers strongly believe that this is your only option on the market, so spare your time on explanation that you were hesitant to spend more than 1 day on a "throw-away code"
